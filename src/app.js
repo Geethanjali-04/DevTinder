@@ -1,8 +1,12 @@
 const express = require("express");
 const app = express();
+const {userAuth} = require("./middlewares/auth.js");
 
 // match the get api
 // handling routes using query params
+
+app.use("/user", userAuth)
+
 app.get("/user", (req,res)=>{
     console.log(req.query);
     res.send({"Name": "Jaggu", "age": 22});
@@ -11,7 +15,7 @@ app.get("/user", (req,res)=>{
 // handling routes using req params 
 app.get("/user/:id/:password", (req,res,next)=>{
     console.log(req.params);
-    // res.send({"Name": "devs", "age": 22}); this gives error (req cannot send to client)
+    // res.send({"Name": "devs", "age": 22}); this gives error (req cannot send)
     next();
 }, (req, res)=>{ 
     res.send({"response": 2});
