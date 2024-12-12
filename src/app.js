@@ -9,9 +9,12 @@ app.get("/user", (req,res)=>{
 })
 
 // handling routes using req params 
-app.get("/user/:id/:password", (req,res)=>{
+app.get("/user/:id/:password", (req,res,next)=>{
     console.log(req.params);
-    res.send({"Name": "devs", "age": 22});
+    // res.send({"Name": "devs", "age": 22}); this gives error (req cannot send to client)
+    next();
+}, (req, res)=>{ 
+    res.send({"response": 2});
 })
 // match the http post method
 app.post("/user", (req,res)=>{
