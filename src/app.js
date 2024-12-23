@@ -30,3 +30,73 @@ app.post("/sign-up", async (req, res) => {
         res.send("user not saved successfully "+ err);
     }
 })
+
+// get user by user email
+app.get("/user", async (req, res)=>{
+ try {
+  const user = await User.find({emailId: req.body.emailId});
+  if (user.length === 0){
+    res.send("user not found");
+  }
+  else{
+    res.send(user);
+  }
+}
+ catch {
+   res.status(400).send("something went wrong");
+ }
+})
+
+//feed api - get all users
+app.get("/feed", async (req,res)=>{
+    try {
+        const users = await User.find({});
+        users.length === 0 ? res.send("users not found"): res.send(users);
+    }
+    catch {
+        res.status(400).send("users not found");
+    }
+})
+
+// update user
+app.patch("/user",async (req,res)=>{
+    console.log(req.body.emailId)
+    if (!req.body.emailId)
+    {
+        res.send("emailId not present");
+    }
+    try {
+        console.log("body"+ req.body);
+        const user = await User.findOneAndUpdate({emailId: req.body.emailId}, req.body, {runValidators: true});
+        if (!user){
+            res.send("user not found");
+        }
+        else {
+        res.send("user updated successfully");
+        }
+    }
+    catch(err) {
+        res.status(500).send("something went wrong"+ err.message);
+    }
+})
+
+// delete user
+app.delete("/user",async (req,res)=>{
+    console.log(req.body.userId)
+    if (!req.body.userId)
+    {
+        res.send("userid not present");
+    }
+    try {
+        const user = await User.findByIdAndDelete(req.body.userId);
+        if (!user){
+            res.send("user not found");
+        }
+        else {
+        res.send("user deleted successfully");
+        }
+    }
+    catch {
+        res.status(400).send("something went wrong");
+    }
+})
