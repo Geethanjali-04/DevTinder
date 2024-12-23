@@ -57,7 +57,7 @@ const userSchema = new mongoose.Schema({
 "photoUrl":{
     type: "String",
     default: "https://icon-library.com/images/avatar-icon-images/avatar-icon-images-4.jpg"
-}})
+}}, {timestamps: true})
 
 //  create a model
 const User = mongoose.model('User', userSchema );
