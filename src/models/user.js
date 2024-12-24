@@ -56,7 +56,14 @@ const userSchema = new mongoose.Schema({
 ,
 "password": {
     type: String,
-    required: true
+    required: true,
+    validate(value)
+    {
+        if(!validator.isStrongPassword(value))
+        {
+            throw new Error("enter a strong password!");
+        }
+    }
 },
 "skills": {
     type: [String]
@@ -67,7 +74,14 @@ const userSchema = new mongoose.Schema({
 },
 "photoUrl":{
     type: "String",
-    default: "https://icon-library.com/images/avatar-icon-images/avatar-icon-images-4.jpg"
+    default: "https://icon-library.com/images/avatar-icon-images/avatar-icon-images-4.jpg",
+    validate(value)
+    {
+        if (!validator.isURL(value))
+        {
+            throw new Error("URL not valid!!");
+        }
+    }
 }}, {timestamps: true})
 
 //  create a model
