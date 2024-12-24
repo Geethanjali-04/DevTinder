@@ -9,12 +9,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "DevTinder"
+    "url": "https://github.com/Geethanjali-04/DevTinder.git"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "express": "^4.21.1",
-    "mongoose": "^8.9.1"
-  }
+    "mongoose": "^8.9.1",
+    "path-to-regexp": "^0.1.12"
+  },
+  "resolutions": {
+  "path-to-regexp": "0.1.12"
+}
+
 }
