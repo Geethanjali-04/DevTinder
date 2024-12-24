@@ -7,8 +7,12 @@
 // to use the model
 // import the model and create a instance and save it
 // add validations like required: true, unique: true
+// add api validations
+// for email u can even use validator lib, prebuilt functions
 
 const mongoose = require("mongoose");
+const validator = require("validator");
+const { default: isEmail } = require("validator/lib/isEmail");
 
 // defining a schema of user
 const userSchema = new mongoose.Schema({
@@ -40,7 +44,14 @@ const userSchema = new mongoose.Schema({
     unique: true,
     trim: true,
     lowercase: true,
-    set: (email) => email.replace(/\s+/g, '')
+    set: (email) => email.replace(/\s+/g, ''),
+    validate(value)
+    {
+        if (!validator.isEmail(value))
+        {
+            throw new Error("email not valid!!");
+        }
+    }
 }
 ,
 "password": {

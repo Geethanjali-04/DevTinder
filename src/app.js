@@ -23,6 +23,12 @@ app.use(express.json());
 app.post("/sign-up", async (req, res) => {
     const user = new User(req.body);
     try {
+        const ALLOWED_FIELDS = ["age", "skills", "about", "firstName", "lastName", "photoUrl", "password", "gender", "emailId"];
+        const isUpdateAllowed = Object.keys(req.body).every((key)=> ALLOWED_FIELDS.includes(key));
+        if (!isUpdateAllowed)
+        {
+            throw new Error("this data contains inconsistent fields");
+        }
         await user.save();
         res.send("user saved successfully");
     }
@@ -59,24 +65,31 @@ app.get("/feed", async (req,res)=>{
 })
 
 // update user
-app.patch("/user",async (req,res)=>{
-    console.log(req.body.emailId)
-    if (!req.body.emailId)
-    {
-        res.send("emailId not present");
-    }
+app.patch("/user/:userId",async (req,res)=>{
+    const userId = req.params?.userId
     try {
         console.log("body"+ req.body);
-        const user = await User.findOneAndUpdate({emailId: req.body.emailId}, req.body, {runValidators: true});
+        // data sanitization make user emailId and unnecessary fields gets added
+        const ALLOWED_FIELDS = ["age", "skills", "about", "firstName", "lastName", "photoUrl", "password", "gender"];
+        const isUpdateAllowed = Object.keys(req.body).every((key)=> ALLOWED_FIELDS.includes(key));
+        if (!isUpdateAllowed)
+        {
+            throw new Error("this data contains inconsistent fields");
+        }
+        if(req.body?.skills?.length > 15)
+        {
+            throw new Error("Skills should be less than 15");
+        }
+        const user = await User.findOneAndUpdate({_id: userId}, req.body, {runValidators: true});
         if (!user){
-            res.send("user not found");
+            res.status(404).send("user not found");
         }
         else {
         res.send("user updated successfully");
         }
     }
     catch(err) {
-        res.status(500).send("something went wrong"+ err.message);
+        res.status(500).send("Error: "+ err.message);
     }
 })
 
