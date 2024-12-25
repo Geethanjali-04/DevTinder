@@ -8,7 +8,7 @@
 // import the model and create a instance and save it
 // add validations like required: true, unique: true
 // add api validations
-// for email u can even use validator lib, prebuilt functions
+// for email u can even use (validator lib), prebuilt functions
 
 const mongoose = require("mongoose");
 const validator = require("validator");

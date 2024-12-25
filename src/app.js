@@ -2,6 +2,8 @@ const express = require("express");
 const app = express();
 const {userAuth} = require("./middlewares/auth.js");
 const connectDb = require("./config/database.js");
+const {validateSignUpData} = require("./utils/validateSignUpData.js");
+const argon2 = require("argon2");
 
 
 // connecting mongoDb
@@ -21,14 +23,18 @@ app.use(express.json());
 
 // sigup api
 app.post("/sign-up", async (req, res) => {
-    const user = new User(req.body);
     try {
-        const ALLOWED_FIELDS = ["age", "skills", "about", "firstName", "lastName", "photoUrl", "password", "gender", "emailId"];
-        const isUpdateAllowed = Object.keys(req.body).every((key)=> ALLOWED_FIELDS.includes(key));
-        if (!isUpdateAllowed)
-        {
-            throw new Error("this data contains inconsistent fields");
-        }
+    // validate the data
+    validateSignUpData(req);
+    // encrypt the password
+    const {firstName, lastName, password, emailId } = req.body;
+    console.log("pass"+ password);
+    console.log(argon2);
+    const passwordHash = await argon2.hash(password);
+    console.log(passwordHash);
+    // create the instance
+        const user = new User({ firstName: firstName,lastName: lastName, emailId: emailId, password: passwordHash });
+        console.log(user);
         await user.save();
         res.send("user saved successfully");
     }
