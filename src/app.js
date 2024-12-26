@@ -18,7 +18,7 @@ then(()=> {
 // require user model
 const User = require("./models/user.js");
 
-// middleware to accept json object in js object in req.body
+// middleware to accept json object from js object in req.body
 app.use(express.json());
 
 // sigup api
@@ -27,19 +27,39 @@ app.post("/sign-up", async (req, res) => {
     // validate the data
     validateSignUpData(req);
     // encrypt the password
-    const {firstName, lastName, password, emailId } = req.body;
-    console.log("pass"+ password);
-    console.log(argon2);
+    const { firstName, lastName, password, emailId } = req.body;
     const passwordHash = await argon2.hash(password);
     console.log(passwordHash);
     // create the instance
         const user = new User({ firstName: firstName,lastName: lastName, emailId: emailId, password: passwordHash });
-        console.log(user);
         await user.save();
         res.send("user saved successfully");
     }
     catch(err) {
         res.send("user not saved successfully "+ err);
+    }
+})
+
+// login api
+app.post("/login", async (req, res) => {
+    try {
+        const { emailId, password } = req.body;
+        const user = await User.findOne({emailId: emailId});
+        console.log(user);
+        if (!user)
+        {
+            throw new Error("Invalid credentials!!");
+        }
+        const hashPassword = user.password;
+        // verify password
+        if (await argon2.verify(hashPassword, password)) {
+            res.status(200).send("successfully logged in");
+          } else {
+            throw new Error("Invalid credentials!!");
+          }
+    }
+    catch(err) {
+        res.status(500).send("error"+ err);
     }
 })
 

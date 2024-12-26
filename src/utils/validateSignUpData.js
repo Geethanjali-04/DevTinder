@@ -6,7 +6,7 @@ const validateSignUpData = (req)=> {
     {
         throw new Error("Name is not valid!");
     }
-    else if (!validator.isEmail(email))
+    else if (!validator.isEmail(emailId))
     {
         throw new Error("Email is not valid!");
     }
