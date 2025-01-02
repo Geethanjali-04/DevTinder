@@ -4,8 +4,8 @@ const {userAuth} = require("./middlewares/auth.js");
 const connectDb = require("./config/database.js");
 const {validateSignUpData} = require("./utils/validateSignUpData.js");
 const argon2 = require("argon2");
-
-
+const jwt = require("jsonwebtoken");
+const cookieParser =  require("cookie-parser");
 // connecting mongoDb
 connectDb().
 then(()=> {
@@ -18,8 +18,10 @@ then(()=> {
 // require user model
 const User = require("./models/user.js");
 
-// middleware to accept json object from js object in req.body
+// middleware to accept json object as js object in req.body
 app.use(express.json());
+// middleware to get cookies from the request
+app.use(cookieParser());
 
 // sigup api
 app.post("/sign-up", async (req, res) => {
@@ -53,6 +55,10 @@ app.post("/login", async (req, res) => {
         const hashPassword = user.password;
         // verify password
         if (await argon2.verify(hashPassword, password)) {
+            // generate jwt token and attach it to cookies
+            const jwtToken = jwt.sign({ _id: user._id }, "Dev@Tinder@123");
+            console.log(jwtToken)
+            res.cookie("token", jwtToken);
             res.status(200).send("successfully logged in");
           } else {
             throw new Error("Invalid credentials!!");
@@ -60,6 +66,25 @@ app.post("/login", async (req, res) => {
     }
     catch(err) {
         res.status(500).send("error"+ err);
+    }
+})
+
+// get profile by user id from cookies
+
+app.get("/profile", async (req,res)=>{
+    try{
+        const {token} = req.cookies;
+        const {_id} = await jwt.verify(token, "Dev@Tinder@123");
+        const user = await User.findOne({_id: _id});
+        if (!user)
+        {
+            throw new Error("User Not Found!!");
+        }
+        res.send(user);
+
+    }catch(err)
+    {
+        res.status(500).send("error "+err);
     }
 })
 
