@@ -20,6 +20,7 @@ const User = require("./models/user.js");
 
 // middleware to accept json object as js object in req.body
 app.use(express.json());
+
 // middleware to get cookies from the request
 app.use(cookieParser());
 
@@ -31,7 +32,6 @@ app.post("/sign-up", async (req, res) => {
     // encrypt the password
     const { firstName, lastName, password, emailId } = req.body;
     const passwordHash = await argon2.hash(password);
-    console.log(passwordHash);
     // create the instance
         const user = new User({ firstName: firstName,lastName: lastName, emailId: emailId, password: passwordHash });
         await user.save();
@@ -56,9 +56,10 @@ app.post("/login", async (req, res) => {
         // verify password
         if (await argon2.verify(hashPassword, password)) {
             // generate jwt token and attach it to cookies
-            const jwtToken = jwt.sign({ _id: user._id }, "Dev@Tinder@123");
-            console.log(jwtToken)
-            res.cookie("token", jwtToken);
+            const jwtToken = jwt.sign({ _id: user._id }, "Dev@Tinder@123", {expiresIn: '7 days'});
+            res.cookie("token", jwtToken,  {
+                expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Expire in 7 days
+            });
             res.status(200).send("successfully logged in");
           } else {
             throw new Error("Invalid credentials!!");
@@ -70,21 +71,23 @@ app.post("/login", async (req, res) => {
 })
 
 // get profile by user id from cookies
-
-app.get("/profile", async (req,res)=>{
+app.get("/profile", userAuth, async (req,res)=>{
     try{
-        const {token} = req.cookies;
-        const {_id} = await jwt.verify(token, "Dev@Tinder@123");
-        const user = await User.findOne({_id: _id});
-        if (!user)
-        {
-            throw new Error("User Not Found!!");
-        }
+        const user = req.user;
         res.send(user);
-
     }catch(err)
     {
         res.status(500).send("error "+err);
+    }
+})
+
+// get connectionRequests
+app.get("/connectionRequests", userAuth, async (req,res)=> {
+    try{
+        const user = req.user;
+        res.send(user.firstName + " send the connection request");
+    }catch(err){
+        res.status(500).send("error:" + err.message);
     }
 })
 
