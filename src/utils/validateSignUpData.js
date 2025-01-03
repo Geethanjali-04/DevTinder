@@ -26,4 +26,10 @@ const validateSignUpData = (req)=> {
     }
 }
 
-module.exports = {validateSignUpData};
+const validatePassword = (req) => {
+ if (!validator.isStrongPassword(req.body.password)){
+    throw new Error("Password not Strong!!");
+ }
+}
+
+module.exports = {validateSignUpData, validatePassword};

@@ -12,6 +12,8 @@
 
 const mongoose = require("mongoose");
 const validator = require("validator");
+const argon2 = require("argon2");
+const jwt = require("jsonwebtoken");
 const { default: isEmail } = require("validator/lib/isEmail");
 
 // defining a schema of user
@@ -84,6 +86,18 @@ const userSchema = new mongoose.Schema({
     }
 }}, {timestamps: true})
 
+userSchema.methods.validatePassword = async function(userEnteredPassword)
+{
+    const hashPassword = this.password;
+    const isPasswordValid = await argon2.verify(hashPassword, userEnteredPassword);
+    return isPasswordValid;
+}
+
+userSchema.methods.generateToken = function()
+{
+  return jwt.sign({ _id: this._id }, "Dev@Tinder@123", {expiresIn: '7 days'});
+}
+
 //  create a model
 const User = mongoose.model('User', userSchema );
-module.exports = User
+module.exports = User;
