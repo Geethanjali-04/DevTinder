@@ -5,6 +5,7 @@ const cookieParser =  require("cookie-parser");
 const authRouter = require('./routes/auth.js');
 const requestsRouter = require('./routes/requests.js');
 const profileRouter = require('./routes/profile.js');
+const userRouter = require('./routes/user.js');
 
 // middleware to accept json object as js object in req.body
 app.use(express.json());
@@ -15,7 +16,7 @@ app.use(cookieParser());
 app.use('/', authRouter );
 app.use('/', requestsRouter);
 app.use('/', profileRouter);
-
+app.use('/', userRouter);
 // connecting mongoDb
 connectDb().
 then(()=> {
